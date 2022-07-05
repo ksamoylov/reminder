@@ -1,4 +1,4 @@
-module vroom
+module reminder
 
 go 1.16
 

@@ -5,6 +5,6 @@ WORKDIR /app
 COPY . .
 
 RUN go mod download && go mod verify
-RUN go build -o vroom ./cmd/main.go
+RUN go build -o reminder ./cmd/main/api.go
 
-CMD ["/app/vroom"]
+CMD ["/app/reminder"]

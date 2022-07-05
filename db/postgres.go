@@ -4,7 +4,7 @@ import (
 	"database/sql"
 	"fmt"
 	_ "github.com/lib/pq"
-	"vroom/config"
+	"reminder/config"
 )
 
 type Postgres struct {
@@ -30,6 +30,6 @@ func (postgres *Postgres) Connect() (*sql.DB, error) {
 	if err != nil {
 		panic(err)
 	}
-	
+
 	return db, nil
 }

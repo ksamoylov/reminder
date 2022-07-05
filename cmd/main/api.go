@@ -1,8 +1,8 @@
 package main
 
 import (
-	"vroom/config"
-	"vroom/db"
+	"reminder/config"
+	"reminder/db"
 )
 
 func main() {

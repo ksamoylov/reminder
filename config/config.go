@@ -11,11 +11,13 @@ const (
 
 type Config struct {
 	DbConfig
+	TelegramConfig
 }
 
 func NewConfig() *Config {
 	return &Config{
-		DbConfig: *newDbConfig(),
+		DbConfig:       *newDbConfig(),
+		TelegramConfig: *newTelegramConfig(),
 	}
 }
 
@@ -36,6 +38,16 @@ func newDbConfig() *DbConfig {
 		User: getEnv("POSTGRES_USER", ""),
 		Pass: getEnv("POSTGRES_PASS", ""),
 		Name: getEnv("POSTGRES_NAME", ""),
+	}
+}
+
+type TelegramConfig struct {
+	Token string
+}
+
+func newTelegramConfig() *TelegramConfig {
+	return &TelegramConfig{
+		Token: getEnv("TELEGRAM_BOT_TOKEN", ""),
 	}
 }
 

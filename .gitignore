@@ -16,3 +16,6 @@
 
 # Ide
 .idea
+
+# Env
+.env
