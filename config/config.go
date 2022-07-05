@@ -36,8 +36,8 @@ func newDbConfig() *DbConfig {
 		Host: getEnv("POSTGRES_HOST", ""),
 		Port: getIntEnv("POSTGRES_PORT", DefaultPort),
 		User: getEnv("POSTGRES_USER", ""),
-		Pass: getEnv("POSTGRES_PASS", ""),
-		Name: getEnv("POSTGRES_NAME", ""),
+		Pass: getEnv("POSTGRES_PASSWORD", ""),
+		Name: getEnv("POSTGRES_DB", ""),
 	}
 }
 
