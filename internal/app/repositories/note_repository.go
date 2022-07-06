@@ -50,3 +50,26 @@ func (repository *NoteRepository) FindAll() ([]models.Note, error) {
 
 	return notes, nil
 }
+
+func (repository *NoteRepository) CreateOne(note *models.Note) *models.Note {
+	var id int
+	var createdAt string
+	var updatedAt string
+
+	sqlStatement := fmt.Sprintf(
+		"insert into %s (name) values ($1) returning id, created_at, updated_at",
+		repository.TableName,
+	)
+
+	err := repository.DB.QueryRow(sqlStatement, note.Name).Scan(&id, &createdAt, &updatedAt)
+
+	if err != nil {
+		panic(err)
+	}
+
+	note.ID = id
+	note.CreatedAt = createdAt
+	note.UpdatedAt = updatedAt
+
+	return note
+}

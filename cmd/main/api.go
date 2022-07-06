@@ -7,7 +7,7 @@ import (
 	"net/http"
 	"reminder/config"
 	"reminder/db"
-	"reminder/internal/app/api/controllers"
+	"reminder/internal/app/controllers"
 )
 
 func init() {
@@ -28,7 +28,8 @@ func main() {
 	router := mux.NewRouter()
 	noteController := controllers.NewNoteController(db)
 
-	router.HandleFunc("/", noteController.Index)
+	router.HandleFunc("/note/", noteController.Index)
+	router.HandleFunc("/note/create/", noteController.Create)
 
 	http.ListenAndServe(":8080", router)
 }
