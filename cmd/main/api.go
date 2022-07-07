@@ -30,6 +30,7 @@ func main() {
 
 	router.HandleFunc("/note/", noteController.Index)
 	router.HandleFunc("/note/create/", noteController.Create)
+	router.HandleFunc("/note/delete/", noteController.Delete)
 
 	http.ListenAndServe(":8080", router)
 }

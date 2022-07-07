@@ -73,3 +73,17 @@ func (repository *NoteRepository) CreateOne(note *models.Note) *models.Note {
 
 	return note
 }
+
+func (repository *NoteRepository) Delete(id *int) {
+	sqlStatement := fmt.Sprintf(
+		"delete from %s where id = %d",
+		repository.TableName,
+		*id,
+	)
+
+	_, err := repository.DB.Exec(sqlStatement)
+
+	if err != nil {
+		panic(err)
+	}
+}

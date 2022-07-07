@@ -3,11 +3,12 @@ package controllers
 import (
 	"database/sql"
 	"encoding/json"
+	"fmt"
 	"io/ioutil"
 	"net/http"
-	"reminder/internal/app"
 	"reminder/internal/app/repositories"
 	"reminder/internal/app/services"
+	"strconv"
 )
 
 type NoteContoller struct {
@@ -25,8 +26,8 @@ func NewNoteController(db *sql.DB) *NoteContoller {
 	}
 }
 
-func (controller NoteContoller) Index(w http.ResponseWriter, r *http.Request) {
-	if r.Method != app.POST {
+func (controller *NoteContoller) Index(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodGet {
 		w.WriteHeader(http.StatusMethodNotAllowed)
 
 		return
@@ -52,8 +53,8 @@ func (controller NoteContoller) Index(w http.ResponseWriter, r *http.Request) {
 	w.Write(response)
 }
 
-func (controller NoteContoller) Create(w http.ResponseWriter, r *http.Request) {
-	if r.Method != app.POST {
+func (controller *NoteContoller) Create(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPost {
 		w.WriteHeader(http.StatusMethodNotAllowed)
 
 		return
@@ -80,4 +81,39 @@ func (controller NoteContoller) Create(w http.ResponseWriter, r *http.Request) {
 
 	w.WriteHeader(http.StatusOK)
 	w.Write(jsonNote)
+}
+
+func (controller *NoteContoller) Delete(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodDelete {
+		w.WriteHeader(http.StatusMethodNotAllowed)
+
+		return
+	}
+
+	id := r.URL.Query().Get("id")
+
+	if id == "" {
+		w.WriteHeader(http.StatusBadRequest)
+
+		// todo validation
+		w.Write([]byte("Bad request"))
+
+		return
+	}
+
+	formattedId, err := strconv.Atoi(id)
+
+	if err != nil {
+		w.WriteHeader(http.StatusUnprocessableEntity)
+
+		return
+	}
+
+	controller.repository.Delete(&formattedId)
+
+	response := map[string]string{"success": "true", "message": fmt.Sprintf("Note %d deleted", formattedId)}
+	responseJson, _ := json.Marshal(response)
+
+	w.WriteHeader(http.StatusOK)
+	w.Write(responseJson)
 }
