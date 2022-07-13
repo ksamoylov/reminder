@@ -5,6 +5,7 @@ import (
 	"github.com/joho/godotenv"
 	"log"
 	"reminder/config"
+	"reminder/internal/app/handlers"
 )
 
 var TIMEOUT = 60
@@ -37,7 +38,8 @@ func main() {
 			continue
 		}
 
-		repliedMessage := "hello"
+		repliedMessage := string(handlers.HandleMessage(update.Message.Text))
+
 		msg := tgBotApi.NewMessage(update.Message.Chat.ID, repliedMessage)
 		bot.Send(msg)
 	}

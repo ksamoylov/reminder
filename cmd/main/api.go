@@ -28,7 +28,7 @@ func main() {
 	router := mux.NewRouter()
 	noteController := controllers.NewNoteController(db)
 
-	router.HandleFunc("/note/", noteController.Index)
+	router.HandleFunc("/note/list/", noteController.Index)
 	router.HandleFunc("/note/create/", noteController.Create)
 	router.HandleFunc("/note/delete/", noteController.Delete)
 
