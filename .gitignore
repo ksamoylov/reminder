@@ -19,3 +19,6 @@
 
 # Env
 .env
+
+# Db data
+db/data

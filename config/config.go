@@ -1,23 +1,26 @@
 package config
 
 import (
-	"os"
-	"strconv"
+	pkg "reminder/pkg/env"
 )
 
 const (
-	DefaultPort = 5432
+	DefaultDbPort     = 5432
+	DefaultServerPort = 8000
+	TrueValue         = 1
 )
 
 type Config struct {
 	DbConfig
-	TelegramConfig
+	HttpPort  int
+	DebugMode bool
 }
 
-func NewConfig() *Config {
+func New() *Config {
 	return &Config{
-		DbConfig:       *newDbConfig(),
-		TelegramConfig: *newTelegramConfig(),
+		DbConfig:  *newDbConfig(),
+		HttpPort:  pkg.GetIntEnv("SERVER_PORT", DefaultServerPort),
+		DebugMode: pkg.GetIntEnv("DEBUG_MODE", TrueValue) == TrueValue,
 	}
 }
 
@@ -32,43 +35,11 @@ type DbConfig struct {
 
 func newDbConfig() *DbConfig {
 	return &DbConfig{
-		Url:  getEnv("POSTGRES_URL", ""),
-		Host: getEnv("POSTGRES_HOST", ""),
-		Port: getIntEnv("POSTGRES_PORT", DefaultPort),
-		User: getEnv("POSTGRES_USER", ""),
-		Pass: getEnv("POSTGRES_PASSWORD", ""),
-		Name: getEnv("POSTGRES_DB", ""),
+		Url:  pkg.GetEnv("POSTGRES_URL", ""),
+		Host: pkg.GetEnv("POSTGRES_HOST", ""),
+		Port: pkg.GetIntEnv("POSTGRES_PORT", DefaultDbPort),
+		User: pkg.GetEnv("POSTGRES_USER", ""),
+		Pass: pkg.GetEnv("POSTGRES_PASSWORD", ""),
+		Name: pkg.GetEnv("POSTGRES_DB", ""),
 	}
-}
-
-type TelegramConfig struct {
-	Token string
-}
-
-func newTelegramConfig() *TelegramConfig {
-	return &TelegramConfig{
-		Token: getEnv("TELEGRAM_BOT_TOKEN", ""),
-	}
-}
-
-func getEnv(key string, defaultVal string) string {
-	if value, exists := os.LookupEnv(key); exists {
-		return value
-	}
-
-	return defaultVal
-}
-
-func getIntEnv(key string, defaultVal int) int {
-	if value, exists := os.LookupEnv(key); exists {
-		val, err := strconv.ParseInt(value, 10, 64)
-
-		if err != nil {
-			return defaultVal
-		}
-
-		return int(val)
-	}
-
-	return defaultVal
 }

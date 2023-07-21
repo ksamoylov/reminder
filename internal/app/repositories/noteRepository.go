@@ -2,11 +2,12 @@ package repositories
 
 import (
 	"database/sql"
+	"errors"
 	"fmt"
 	"reminder/internal/app/models"
 )
 
-var TableName = "note"
+const TableName = "note"
 
 type NoteRepository struct {
 	DB        *sql.DB
@@ -51,7 +52,7 @@ func (repository *NoteRepository) FindAll() ([]models.Note, error) {
 	return notes, nil
 }
 
-func (repository *NoteRepository) CreateOne(note *models.Note) *models.Note {
+func (repository *NoteRepository) CreateOne(note *models.Note) (*models.Note, error) {
 	var id int
 	var createdAt string
 	var updatedAt string
@@ -64,26 +65,32 @@ func (repository *NoteRepository) CreateOne(note *models.Note) *models.Note {
 	err := repository.DB.QueryRow(sqlStatement, note.Name).Scan(&id, &createdAt, &updatedAt)
 
 	if err != nil {
-		panic(err)
+		return nil, err
 	}
 
 	note.ID = id
 	note.CreatedAt = createdAt
 	note.UpdatedAt = updatedAt
 
-	return note
+	return note, nil
 }
 
-func (repository *NoteRepository) Delete(id *int) {
+func (repository *NoteRepository) Delete(id *string) error {
 	sqlStatement := fmt.Sprintf(
-		"delete from %s where id = %d",
+		"delete from %s where id = %s",
 		repository.TableName,
 		*id,
 	)
 
-	_, err := repository.DB.Exec(sqlStatement)
+	result, err := repository.DB.Exec(sqlStatement)
 
 	if err != nil {
-		panic(err)
+		return err
 	}
+
+	if rows, _ := result.RowsAffected(); rows < 1 {
+		return errors.New(fmt.Sprintf("note %s not found", *id))
+	}
+
+	return nil
 }
