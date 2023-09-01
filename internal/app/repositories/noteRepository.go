@@ -7,7 +7,7 @@ import (
 	"reminder/internal/app/models"
 )
 
-const TableName = "note"
+const NoteTableName = "note"
 
 type NoteRepository struct {
 	DB        *sql.DB
@@ -17,7 +17,7 @@ type NoteRepository struct {
 func NewNoteRepository(db *sql.DB) *NoteRepository {
 	return &NoteRepository{
 		DB:        db,
-		TableName: TableName,
+		TableName: NoteTableName,
 	}
 }
 

@@ -16,14 +16,15 @@ func init() {
 
 func main() {
 	conf := config.New()
-	postgres := db.NewPostgres(&conf.DbConfig)
+	postgres := db.NewPostgres(conf.DbConfig)
 	dbInstance, err := postgres.Connect()
+	redisInstance := db.NewRedis(conf.RedisConfig)
 
 	if err != nil {
 		logger.Error(err)
 		return
 	}
 
-	server := app.NewServer(conf, dbInstance)
+	server := app.NewServer(conf, dbInstance, redisInstance)
 	server.Start()
 }

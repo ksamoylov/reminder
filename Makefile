@@ -12,6 +12,9 @@ m_up:
 m_down:
 	migrate -path db/migrations -database "${POSTGRES_URL}&sslmode=disable" -verbose down
 
+m_create:
+	migrate create -ext sql -dir db/migrations $(m_name)
+
 api:
 	go run ./cmd/api.go
 

@@ -3,6 +3,7 @@ package app
 import (
 	"database/sql"
 	"fmt"
+	"github.com/redis/go-redis/v9"
 	"net/http"
 	"reminder/config"
 	"reminder/internal/app/handlers"
@@ -14,8 +15,8 @@ type Server struct {
 	handler *handlers.Handler
 }
 
-func NewServer(config *config.Config, db *sql.DB) *Server {
-	return &Server{config: config, handler: handlers.NewHandler(config, db)}
+func NewServer(config *config.Config, db *sql.DB, redis *redis.Client) *Server {
+	return &Server{config: config, handler: handlers.NewHandler(config, db, redis)}
 }
 
 func (s *Server) Start() {
@@ -27,7 +28,7 @@ func (s *Server) handle() {
 	router := *s.handler.NewRouter()
 
 	for route, handler := range router {
-		http.Handle(route, middlewares.Middleware(handler, s.config))
+		http.Handle(route, middlewares.NoteMiddleware(handler, s.config))
 	}
 }
 

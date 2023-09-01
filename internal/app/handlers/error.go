@@ -7,7 +7,7 @@ import (
 	"reminder/pkg/logger"
 )
 
-func handleError(w http.ResponseWriter, statusError *StatusError) {
+func handleError(w http.ResponseWriter, statusError *types.StatusError) {
 	w.WriteHeader(statusError.Code)
 	w.Write(CreateResponseByError(statusError.Err))
 }

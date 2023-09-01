@@ -5,22 +5,25 @@ import (
 )
 
 const (
-	DefaultDbPort     = 5432
-	DefaultServerPort = 8000
-	TrueValue         = 1
+	DefaultDbPort       = 5432
+	DefaultServerPort   = 8000
+	TrueValue           = 1
+	DefaultPostgresPort = 6379
 )
 
 type Config struct {
-	DbConfig
+	*DbConfig
+	*RedisConfig
 	HttpPort  int
 	DebugMode bool
 }
 
 func New() *Config {
 	return &Config{
-		DbConfig:  *newDbConfig(),
-		HttpPort:  pkg.GetIntEnv("SERVER_PORT", DefaultServerPort),
-		DebugMode: pkg.GetIntEnv("DEBUG_MODE", TrueValue) == TrueValue,
+		DbConfig:    newDbConfig(),
+		RedisConfig: newRedisConfig(),
+		HttpPort:    pkg.GetIntEnv("SERVER_PORT", DefaultServerPort),
+		DebugMode:   pkg.GetIntEnv("DEBUG_MODE", TrueValue) == TrueValue,
 	}
 }
 
@@ -41,5 +44,21 @@ func newDbConfig() *DbConfig {
 		User: pkg.GetEnv("POSTGRES_USER", ""),
 		Pass: pkg.GetEnv("POSTGRES_PASSWORD", ""),
 		Name: pkg.GetEnv("POSTGRES_DB", ""),
+	}
+}
+
+type RedisConfig struct {
+	Password string
+	Db       int
+	Host     string
+	Port     int
+}
+
+func newRedisConfig() *RedisConfig {
+	return &RedisConfig{
+		Password: pkg.GetEnv("REDIS_PASSWORD", ""),
+		Host:     pkg.GetEnv("REDIS_HOST", ""),
+		Db:       pkg.GetIntEnv("REDIS_DB", 0),
+		Port:     pkg.GetIntEnv("REDIS_PORT", 0),
 	}
 }

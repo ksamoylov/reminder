@@ -22,3 +22,6 @@
 
 # Db data
 db/data
+
+# Session data
+redis

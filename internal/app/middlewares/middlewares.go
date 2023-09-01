@@ -6,26 +6,24 @@ import (
 	"net/http/httputil"
 	"reminder/config"
 	"reminder/internal/app/handlers"
+	"reminder/internal/app/types"
 	"reminder/pkg/logger"
 )
 
-func Middleware(next handlers.HandlerFn, conf *config.Config) handlers.HandlerFn {
-	return func(w http.ResponseWriter, r *http.Request) *handlers.StatusError {
+func NoteMiddleware(next handlers.HandlerFn, conf *config.Config) handlers.HandlerFn {
+	return func(w http.ResponseWriter, r *http.Request) *types.StatusError {
 		debug(r, conf.DebugMode)
 
 		err := checkToken(r, "access") // todo
 
 		if err != nil {
-			return &handlers.StatusError{Err: err, Code: http.StatusUnauthorized}
+			return types.NewStatusError(err, http.StatusUnauthorized)
 		}
 
 		err = checkIsMethodAllowed(r)
 
 		if err != nil {
-			return &handlers.StatusError{
-				Err:  err,
-				Code: http.StatusMethodNotAllowed,
-			}
+			return types.NewStatusError(err, http.StatusMethodNotAllowed)
 		}
 
 		return next(w, r)

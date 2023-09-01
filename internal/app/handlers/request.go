@@ -2,32 +2,25 @@ package handlers
 
 import (
 	"database/sql"
+	"github.com/redis/go-redis/v9"
 	"gopkg.in/validator.v2"
 	"net/http"
 	"reminder/config"
-	"reminder/internal/app/repositories"
-	"reminder/internal/app/services"
+	"reminder/internal/app/providers"
+	"reminder/internal/app/types"
 )
-
-type StatusError struct {
-	Err  error
-	Code int
-}
 
 type Handler struct {
 	config    *config.Config
 	validator *validator.Validator
-	service   *services.NoteService
+	deps      *providers.Deps
 }
 
-func NewHandler(config *config.Config, db *sql.DB) *Handler {
-	repository := repositories.NewNoteRepository(db)
-	service := services.NewNoteService(repository)
-
-	return &Handler{config: config, service: service}
+func NewHandler(config *config.Config, db *sql.DB, redis *redis.Client) *Handler {
+	return &Handler{config: config, deps: providers.NewDeps(db, redis)}
 }
 
-type HandlerFn func(w http.ResponseWriter, r *http.Request) *StatusError
+type HandlerFn func(w http.ResponseWriter, r *http.Request) *types.StatusError
 
 func (fn HandlerFn) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	setDefaultResponseHeaders(w)
