@@ -2,11 +2,13 @@ package handlers
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"reminder/internal/app/types"
 )
 
 func (h *Handler) List(w http.ResponseWriter, r *http.Request) *types.StatusError {
+	fmt.Println(getUserIdFromRequestContext(r)) // todo list/creating/deleting by user id
 	var response []byte
 
 	notes, err := h.Deps.NoteService.Repository.FindAll()

@@ -1,4 +1,4 @@
-package middlewares
+package handlers
 
 import (
 	"context"
@@ -7,7 +7,6 @@ import (
 	"net/http"
 	"net/http/httputil"
 	"reminder/config"
-	"reminder/internal/app/handlers"
 	"reminder/internal/app/types"
 	"reminder/internal/app/util"
 	"reminder/pkg/logger"
@@ -15,10 +14,10 @@ import (
 
 const authorizationHeader = "Authorization"
 
-func CommonMiddleware(next handlers.HandlerFn, conf *config.Config, redis *redis.Client) handlers.HandlerFn {
+func CommonMiddleware(next HandlerFn, conf *config.Config, redis *redis.Client) HandlerFn {
 	return func(w http.ResponseWriter, r *http.Request) *types.StatusError {
 		var err error
-		ctx := context.Background()
+		ctx := r.Context()
 
 		debug(r, conf.DebugMode)
 
@@ -68,6 +67,8 @@ func checkToken(r *http.Request, redis *redis.Client, ctx context.Context) error
 		return errors.New("no active session")
 	}
 
+	PassUserIdToRequestContext(r, ctx, tokenClaims.UserId)
+
 	return nil
 }
 
@@ -86,7 +87,7 @@ func checkAuth(r *http.Request, redis *redis.Client, ctx context.Context) error 
 }
 
 func checkIsMethodNeedAuth(r *http.Request) bool {
-	for _, url := range handlers.MethodsAuthNeeded {
+	for _, url := range MethodsAuthNeeded {
 		if url == r.URL.Path {
 			return true
 		}
@@ -96,7 +97,7 @@ func checkIsMethodNeedAuth(r *http.Request) bool {
 }
 
 func checkIsMethodAllowed(r *http.Request) error {
-	if urls, ok := handlers.MethodRule[r.Method]; ok {
+	if urls, ok := MethodRule[r.Method]; ok {
 		for _, url := range urls {
 			if url == r.URL.Path {
 				return nil

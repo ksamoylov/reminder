@@ -7,7 +7,6 @@ import (
 	"net/http"
 	"reminder/config"
 	"reminder/internal/app/handlers"
-	"reminder/internal/app/middlewares"
 )
 
 type Server struct {
@@ -28,7 +27,7 @@ func (s *Server) handle() {
 	router := *s.handler.NewRouter()
 
 	for route, handler := range router {
-		http.Handle(route, middlewares.CommonMiddleware(handler, s.config, s.handler.Deps.Redis))
+		http.Handle(route, handlers.CommonMiddleware(handler, s.config, s.handler.Deps.Redis))
 	}
 }
 

@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"context"
 	"database/sql"
 	"github.com/redis/go-redis/v9"
 	"gopkg.in/validator.v2"
@@ -9,6 +10,8 @@ import (
 	"reminder/internal/app/providers"
 	"reminder/internal/app/types"
 )
+
+const UserIdContextKey = "user_id"
 
 type Handler struct {
 	config    *config.Config
@@ -33,4 +36,13 @@ func (fn HandlerFn) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 func setDefaultResponseHeaders(w http.ResponseWriter) {
 	w.Header().Set("Content-Type", "application/json")
+}
+
+func PassUserIdToRequestContext(r *http.Request, ctx context.Context, userId int) {
+	req := r.WithContext(context.WithValue(ctx, UserIdContextKey, userId))
+	*r = *req
+}
+
+func getUserIdFromRequestContext(r *http.Request) int {
+	return r.Context().Value("user_id").(int)
 }
