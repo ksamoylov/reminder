@@ -1,5 +1,7 @@
 package types
 
+type Success bool
+
 type Response struct {
 	Success bool   `json:"success"`
 	Message string `json:"message"`
@@ -25,13 +27,15 @@ func NewStatusError(err error, code int) *StatusError {
 }
 
 type AuthTokenResponse struct {
-	Success bool   `json:"success"`
-	Token   string `json:"token"`
+	Success      bool   `json:"success"`
+	AccessToken  string `json:"access_token"`
+	RefreshToken string `json:"refresh_token"`
 }
 
-func NewAuthTokenResponse(success bool, token string) *AuthTokenResponse {
+func NewAuthTokenResponse(success bool, accessToken string, refreshToken string) *AuthTokenResponse {
 	return &AuthTokenResponse{
-		Success: success,
-		Token:   token,
+		Success:      success,
+		AccessToken:  accessToken,
+		RefreshToken: refreshToken,
 	}
 }

@@ -6,8 +6,8 @@ import (
 )
 
 const (
-	SignUp = "/sign-up/"
-	SignIn = "/sign-in/"
+	SignUp = "/user/sign-up/"
+	SignIn = "/user/sign-in/"
 	List   = "/note/list/"
 	Create = "/note/create/"
 	Delete = "/note/delete/"
@@ -25,6 +25,12 @@ var MethodRule = map[string][]string{
 	http.MethodDelete: {
 		Delete,
 	},
+}
+
+var MethodsAuthNeeded = []string{
+	List,
+	Create,
+	Delete,
 }
 
 type Router map[string]func(http.ResponseWriter, *http.Request) *types.StatusError

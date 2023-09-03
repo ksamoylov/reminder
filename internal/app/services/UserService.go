@@ -53,17 +53,17 @@ func (s *UserService) Create(readCloser io.ReadCloser) (*models.User, error) {
 	return &user, nil
 }
 
-func (s *UserService) Auth(readCloser io.ReadCloser, redis *redis.Client, ctx context.Context) (*string, error) {
+func (s *UserService) Auth(readCloser io.ReadCloser, redis *redis.Client, ctx context.Context) (*string, *string, error) {
 	var authData types.AuthData
 
 	err := json.NewDecoder(readCloser).Decode(&authData)
 
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 
 	if err = validator.Validate(authData); err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 
 	var user *models.User
@@ -71,18 +71,19 @@ func (s *UserService) Auth(readCloser io.ReadCloser, redis *redis.Client, ctx co
 	user, err = s.checkUserPasswordByEmail(authData)
 
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 
-	var token *string
-	
-	token, err = internalUtil.CreateSession(user, redis, ctx)
+	var accessToken *string
+	var refreshToken *string
+
+	accessToken, refreshToken, err = internalUtil.CreateSession(user, redis, ctx)
 
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 
-	return token, nil
+	return accessToken, refreshToken, nil
 }
 
 func (s *UserService) checkUserPasswordByEmail(authData types.AuthData) (*models.User, error) {

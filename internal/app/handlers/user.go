@@ -9,7 +9,7 @@ import (
 )
 
 func (h *Handler) SignUp(w http.ResponseWriter, r *http.Request) *types.StatusError {
-	user, err := h.deps.UserService.Create(r.Body)
+	user, err := h.Deps.UserService.Create(r.Body)
 
 	if err != nil {
 		return types.NewStatusError(err, http.StatusUnprocessableEntity)
@@ -29,7 +29,7 @@ func (h *Handler) SignUp(w http.ResponseWriter, r *http.Request) *types.StatusEr
 func (h *Handler) SignIn(w http.ResponseWriter, r *http.Request) *types.StatusError {
 	ctx := context.Background()
 
-	token, err := h.deps.UserService.Auth(r.Body, h.deps.Redis, ctx)
+	accessToken, refreshToken, err := h.Deps.UserService.Auth(r.Body, h.Deps.Redis, ctx)
 
 	if err != nil {
 		return types.NewStatusError(err, http.StatusUnauthorized)
@@ -37,7 +37,7 @@ func (h *Handler) SignIn(w http.ResponseWriter, r *http.Request) *types.StatusEr
 
 	var response []byte
 
-	response, err = json.Marshal(types.NewAuthTokenResponse(true, *token))
+	response, err = json.Marshal(types.NewAuthTokenResponse(true, *accessToken, *refreshToken))
 
 	if err != nil {
 		return types.NewStatusError(err, http.StatusUnprocessableEntity)

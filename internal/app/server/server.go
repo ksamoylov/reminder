@@ -28,7 +28,7 @@ func (s *Server) handle() {
 	router := *s.handler.NewRouter()
 
 	for route, handler := range router {
-		http.Handle(route, middlewares.NoteMiddleware(handler, s.config))
+		http.Handle(route, middlewares.CommonMiddleware(handler, s.config, s.handler.Deps.Redis))
 	}
 }
 

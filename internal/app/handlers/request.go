@@ -13,11 +13,11 @@ import (
 type Handler struct {
 	config    *config.Config
 	validator *validator.Validator
-	deps      *providers.Deps
+	Deps      *providers.Deps
 }
 
 func NewHandler(config *config.Config, db *sql.DB, redis *redis.Client) *Handler {
-	return &Handler{config: config, deps: providers.NewDeps(db, redis)}
+	return &Handler{config: config, Deps: providers.NewDeps(db, redis)}
 }
 
 type HandlerFn func(w http.ResponseWriter, r *http.Request) *types.StatusError

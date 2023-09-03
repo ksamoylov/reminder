@@ -9,7 +9,7 @@ import (
 func (h *Handler) List(w http.ResponseWriter, r *http.Request) *types.StatusError {
 	var response []byte
 
-	notes, err := h.deps.NoteService.Repository.FindAll()
+	notes, err := h.Deps.NoteService.Repository.FindAll()
 
 	if err != nil {
 		return types.NewStatusError(err, http.StatusUnprocessableEntity)
@@ -25,7 +25,7 @@ func (h *Handler) List(w http.ResponseWriter, r *http.Request) *types.StatusErro
 func (h *Handler) Create(w http.ResponseWriter, r *http.Request) *types.StatusError {
 	var response []byte
 
-	note, err := h.deps.NoteService.Create(r.Body)
+	note, err := h.Deps.NoteService.Create(r.Body)
 
 	if err != nil {
 		return types.NewStatusError(err, http.StatusUnprocessableEntity)
@@ -39,7 +39,7 @@ func (h *Handler) Create(w http.ResponseWriter, r *http.Request) *types.StatusEr
 }
 
 func (h *Handler) Delete(w http.ResponseWriter, r *http.Request) *types.StatusError {
-	if err := h.deps.NoteService.Delete(r.URL.Query().Get("id")); err != nil {
+	if err := h.Deps.NoteService.Delete(r.URL.Query().Get("id")); err != nil {
 		return types.NewStatusError(err, http.StatusUnprocessableEntity)
 	}
 

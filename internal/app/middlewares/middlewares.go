@@ -1,29 +1,37 @@
 package middlewares
 
 import (
+	"context"
 	"errors"
+	"github.com/redis/go-redis/v9"
 	"net/http"
 	"net/http/httputil"
 	"reminder/config"
 	"reminder/internal/app/handlers"
 	"reminder/internal/app/types"
+	"reminder/internal/app/util"
 	"reminder/pkg/logger"
 )
 
-func NoteMiddleware(next handlers.HandlerFn, conf *config.Config) handlers.HandlerFn {
+const authorizationHeader = "Authorization"
+
+func CommonMiddleware(next handlers.HandlerFn, conf *config.Config, redis *redis.Client) handlers.HandlerFn {
 	return func(w http.ResponseWriter, r *http.Request) *types.StatusError {
+		var err error
+		ctx := context.Background()
+
 		debug(r, conf.DebugMode)
-
-		err := checkToken(r, "access") // todo
-
-		if err != nil {
-			return types.NewStatusError(err, http.StatusUnauthorized)
-		}
 
 		err = checkIsMethodAllowed(r)
 
 		if err != nil {
 			return types.NewStatusError(err, http.StatusMethodNotAllowed)
+		}
+
+		err = checkAuth(r, redis, ctx)
+
+		if err != nil {
+			return types.NewStatusError(err, http.StatusUnauthorized)
 		}
 
 		return next(w, r)
@@ -45,14 +53,46 @@ func debug(r *http.Request, debugMode bool) {
 	logger.Info(string(out))
 }
 
-func checkToken(r *http.Request, accessToken string) error {
-	token := r.Header.Get("Authorization")
+func checkToken(r *http.Request, redis *redis.Client, ctx context.Context) error {
+	token := r.Header.Get(authorizationHeader)
 
-	if token != accessToken {
-		return errors.New("invalid token passed")
+	tokenClaims, err := util.ParseToken(token)
+
+	if err != nil {
+		return err
+	}
+
+	isSessionExists := util.CheckSessionOnExists(tokenClaims, redis, ctx)
+
+	if !isSessionExists {
+		return errors.New("no active session")
 	}
 
 	return nil
+}
+
+func checkAuth(r *http.Request, redis *redis.Client, ctx context.Context) error {
+	if !checkIsMethodNeedAuth(r) {
+		return nil
+	}
+
+	err := checkToken(r, redis, ctx)
+
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func checkIsMethodNeedAuth(r *http.Request) bool {
+	for _, url := range handlers.MethodsAuthNeeded {
+		if url == r.URL.Path {
+			return true
+		}
+	}
+
+	return false
 }
 
 func checkIsMethodAllowed(r *http.Request) error {
